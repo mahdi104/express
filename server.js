@@ -1,20 +1,51 @@
-//require express
+//importing express
+
 const express = require("express");
+//importing the path
 
-//instance of express
-
+const path = require("path");
+//creating an instance of express
 const app = express();
+//importing the date
+const d = new Date();
+//importing the hours
+const hours = d.getHours();
+//creating an array of days
+const days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+//getting the day
+const dayName = days[d.getDay()];
 
-//simple Route
+//midellware function
+
+function logger(req, res, next) {
+  if (
+    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].includes(
+      dayName
+    ) &&
+    hours >= 9 &&
+    hours <= 17
+  ) {
+    next();
+  } else {
+    res.send("site is closed");
+  }
+}
+//calling the logger function
+app.use(logger);
+//setting a static folder
+app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
-  res.send("hello World");
-  console.table({ method: req.method, path: req.path });
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-//create server
-const port = 5000;
-app.listen(port, (error) => {
-  error
-    ? console.log(error)
-    : console.log(`server is runing on port ${port}...`);
-});
+//connecting to the port
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`server started on ${PORT}`));
